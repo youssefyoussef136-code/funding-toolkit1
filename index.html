@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Funding Toolkit</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow column, four tabbed tools, EN/AR switch with full RTL. Palette matches the workshop deck. */
+:root{--bg:#F7F5F0;--surface:#FFFFFF;--fg:#14213D;--muted:#4F5B6B;--line:#DDD8CC;--head:#0F2A47;--accent:#E8731A;--accent-ink:#9A4A0B;--soft:#EFEBE2;--btn-bg:#0F2A47;--btn-fg:#F7F5F0;--good:#1F7A4D;--warn:#B3500F;--bad:#B3261E;--font:'Public Sans','Tajawal',Arial,sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1A2B;--surface:#15263C;--fg:#F1EFE9;--muted:#A9B6C7;--line:#2A3F5A;--head:#F1EFE9;--accent:#F29A4B;--accent-ink:#F29A4B;--soft:#1B3250;--btn-bg:#F29A4B;--btn-fg:#0E1A2B;--good:#6FD3A0;--warn:#F29A4B;--bad:#FF9B8F;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1A2B;--surface:#15263C;--fg:#F1EFE9;--muted:#A9B6C7;--line:#2A3F5A;--head:#F1EFE9;--accent:#F29A4B;--accent-ink:#F29A4B;--soft:#1B3250;--btn-bg:#F29A4B;--btn-fg:#0E1A2B;--good:#6FD3A0;--warn:#F29A4B;--bad:#FF9B8F;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:860px;margin-inline:auto;display:flex;flex-direction:column;gap:24px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15;margin:0;color:var(--head);text-wrap:balance}
+.sub{margin:6px 0 0;color:var(--muted);max-width:56ch}
+h2{font-size:22px;margin:0;color:var(--head);line-height:1.25}
+h3{font-size:17px;margin:0;color:var(--head)}
+button{font:inherit;cursor:pointer}
+.lang{border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 16px;border-radius:999px;font-weight:600}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:10px 16px;border-radius:10px;font-weight:600}
+.tab[aria-selected="true"]{background:var(--btn-bg);color:var(--btn-fg);border-color:var(--btn-bg)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.panel{display:flex;flex-direction:column;gap:20px}
+[hidden]{display:none!important}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.lead{margin:0;color:var(--muted)}
+.crit{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:center;padding-block:10px;border-top:1px solid var(--line)}
+.crit:first-of-type{border-top:0}
+.crit .hint{color:var(--muted);font-size:14px;grid-column:1}
+.seg{display:flex;gap:6px;grid-row:1/3;grid-column:2}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;inset:0}
+.seg span{display:block;min-width:44px;text-align:center;padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-weight:600;background:var(--surface)}
+.seg input:checked+span{background:var(--btn-bg);color:var(--btn-fg);border-color:var(--btn-bg)}
+.seg input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+.result{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:center}
+@media (max-width:640px){.result{grid-template-columns:minmax(0,1fr)}.crit{grid-template-columns:minmax(0,1fr)}.seg{grid-row:auto;grid-column:1}}
+.big{font-size:56px;font-weight:700;line-height:1;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.band{padding:12px 16px;border-radius:10px;background:var(--soft);font-weight:600}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:600;font-size:14px}
+select,input[type=number]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);width:100%}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media (max-width:640px){.pair{grid-template-columns:minmax(0,1fr)}}
+.opt{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface);display:flex;flex-direction:column;gap:6px;min-width:0}
+.opt.isl{border-color:var(--accent);border-width:2px}
+.tag{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink)}
+.opt p{margin:0;color:var(--muted);font-size:15px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--soft);border-radius:12px;padding:14px}
+.stat b{display:block;font-size:26px;color:var(--accent-ink);line-height:1.1}
+.stat span{font-size:14px;color:var(--muted)}
+.note{font-size:14px;color:var(--muted);margin:0}
+.warn{color:var(--warn);font-weight:600}
+.good{color:var(--good);font-weight:600}
+table{border-collapse:collapse;width:100%}
+td,th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:start;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+svg text{font-family:var(--font);fill:var(--fg)}
+a{color:var(--accent-ink)}
+.rrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;padding-block:12px;border-top:1px solid var(--line);align-items:center}
+.rrow:first-child{border-top:0}
+.rrow .hint{color:var(--muted);font-size:14px}
+.rval{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:end}
+.rval b{font-size:22px;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
+.pill{font-size:13px;font-weight:700;color:var(--muted)}
+.pill.good{color:var(--good)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--bad)}
+footer{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.seg span,.tab{transition:background .15s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="title"></h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <button class="lang" id="lang" type="button"></button>
+  </header>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <section class="panel" id="p-score" role="tabpanel"></section>
+  <section class="panel" id="p-match" role="tabpanel" hidden></section>
+  <section class="panel" id="p-cost" role="tabpanel" hidden></section>
+  <section class="panel" id="p-ratio" role="tabpanel" hidden></section>
+  <section class="panel" id="p-data" role="tabpanel" hidden></section>
+  <footer id="foot"></footer>
+</div>
+
+<script>
+(function(){
+var LANG='en', TAB='score';
+var state={score:[1,1,1,0,1,0],match:{stage:'seed',rev:'some',assets:'no',shariah:'yes'},cost:{raise:2,pre:8,rate:12,term:4,exit:30,cf:1.2},ratio:{rev:1000,revp:800,cogs:600,opex:250,int:20,tax:20,ca:400,cl:250,ar:150,inv:120,ap:100,debt:300,eq:400,assets:1000,cash:120,burn:10,pay:80,intinc:10}};
+try{var saved=localStorage.getItem('ft-lang');if(saved==='ar'||saved==='en')LANG=saved}catch(e){}
+
+var I={
+en:{
+R:{r1:'Investor ratios',r1lead:'Enter figures from your last full year of accounts, in any currency but one unit throughout. These are the ratios a banker or investor will work out in the first meeting. The starting numbers are an example: replace them with yours.',
+g:['Income statement','Balance sheet','Cash and debt'],
+f:{rev:'Revenue this year',revp:'Revenue last year',cogs:'Cost of goods sold',opex:'Operating expenses (excluding interest and tax)',int:'Interest expense',tax:'Tax',ca:'Current assets',cl:'Current liabilities',ar:'Receivables',inv:'Inventory',ap:'Payables',debt:'Total interest-bearing debt',eq:'Total equity',assets:'Total assets',cash:'Cash balance',burn:'Monthly net cash burn (0 if you generate cash)',pay:'Annual loan payments (principal and interest)',intinc:'Interest income earned'},
+rows:{gm:['Gross margin','Is the product itself profitable? Compare with your sector.'],nm:['Net margin','What is left after all costs, interest and tax.'],gr:['Revenue growth','Year on year. Investors compare it with your stage.'],dscr:['Debt service cover','Operating profit ÷ annual loan payments. Banks want 1.25× or more.'],ic:['Interest cover','Operating profit ÷ interest. Lenders look for 3× or more.'],de:['Debt to equity','How much of the funding is borrowed. Under 2× is a common comfort level.'],cr:['Current ratio','Can short-term assets cover short-term bills? 1.5× or more is comfortable.'],ccc:['Cash conversion cycle','Days between paying suppliers and collecting from customers. Shorter is better.'],run:['Cash runway','Months of cash at the current burn. Raise with 12 months or more in hand.'],sh1:['Shariah screen: debt ÷ assets','A common screen is under 33%. Your Shariah board sets the rule.'],sh2:['Shariah screen: interest income ÷ revenue','A common screen is under 5%.']},
+v:{good:'✓ Comfortable',watch:'! Watch',weak:'✕ Weak',pass:'✓ Pass',fail:'✕ Fail',na:'n/a',info:'Compare with peers',cashgen:'✓ Cash-generative'},
+days:'days',months:'months',flags:'Look at first',none:'No red flags on these rules of thumb.',
+note:'Rules of thumb only. Lenders differ by country, sector and stage, and Shariah screens differ by board. Operating profit is revenue minus cost of goods and operating expenses. Not financial advice.'},
+title:'Funding Toolkit',sub:'Five quick tools from the workshop “From Idea to Impact”. All figures you enter stay on your phone.',
+tabs:{score:'Readiness score',match:'Capital matcher',cost:'Equity vs debt',ratio:'Investor ratios',data:'2026 in numbers'},
+lang:'العربية',
+crit:[['Cash flow, not narrative','Revenue record and positive cash flow you can show'],['Governance and controls','Audited accounts, a working board, documented controls'],['A clean cap table','Clear ownership and legal structure'],['Debt readiness','Revenue history, an equity backer, basic financial controls'],['Licences and compliance','Sector licences, KYC and AML in place'],['Shariah compliance','Permissible activity, financial screens, a Shariah board']],
+short:['Cash flow','Governance','Cap table','Debt','Licences','Shariah'],
+lv:['0','1','2'],lvHelp:'0 = nothing documented · 1 = partly · 2 = ready to show an investor',
+s1:'Score yourself',s1lead:'Rate each criterion honestly, as an investor reviewing your files would.',
+total:'Your score',of:'out of 12',
+band:['Build the foundations first: governance, records and cash flow, before approaching funders.','Ready for selective conversations: angels, development lenders, a bank relationship.','Ready for structured debt or a priced equity round.'],
+weak:'Weakest areas',
+m1:'Find the right capital',m1lead:'Answer four questions to see the usual fit, with the Islamic counterpart beside it.',
+stage:'Stage',stages:{idea:'Idea / validation',seed:'Seed',growth:'Growth',scale:'Scale'},
+rev:'Revenue',revs:{none:'No revenue yet',some:'Some revenue',profit:'Profitable'},
+assets:'Financeable assets (vehicles, equipment, receivables)',yn:{yes:'Yes',no:'No'},
+shar:'Shariah-compliant option required',
+conv:'Conventional',isl:'Islamic',
+c1:'Equity versus debt',c1lead:'Compare what an equity round costs the owners with what a loan costs the company. Example figures, replace them with yours.',
+raise:'Amount to raise (USD m)',pre:'Pre-money valuation (USD m)',rate:'Loan interest rate (% a year)',term:'Loan term (years)',exit:'Company value at exit (USD m)',cf:'Annual cash flow to service debt (USD m)',
+eq:'Equity route',dt:'Debt route',
+dil:'Ownership given up',keep:'Existing owners keep',cost_eq:'Value of the stake given up at exit',
+pay:'Annual loan payment',int:'Total interest paid',dscr:'Cash flow cover of payments',
+ok:'Comfortable cover (1.25× or more).',tight:'Thin cover: payments take most of your cash flow.',bad:'Cash flow does not cover the payments. Do not borrow this amount.',
+cmpEq:'The equity route costs more than the interest at these numbers.',cmpDt:'The interest costs more than the stake given up at these numbers.',
+cnote:'Illustrative only. Ignores fees, tax, warrants, later rounds and Shariah structuring. Not financial advice.',
+d1:'Africa’s funding in 2026',
+ch1:'Startup funding by type, Q1 (USD m)',ch2:'Q1 2026 startup funding by country (USD m)',eqL:'Equity',dtL:'Debt',
+d2:'Other numbers worth knowing',
+st:[['$2tn','Global mobile money transactions in 2025'],['$6.5tn','Global Islamic finance assets in 2025'],['$5.7tn','Global MSME finance gap'],['73 → 32','Rounds of $100k–$500k, Q1 2025 vs Q1 2026']],
+dnote:'Trackers use different methods: the equity and debt chart is from Africa: The Big Deal ($600m in Q1 2026); the country chart is from a tracker reporting $705m.',
+src:'Sources',
+foot:'Educational tool from the ICTA workshop. Not investment, legal or Shariah advice. Check structures with your own advisers and Shariah board.'
+},
+ar:{
+R:{r1:'نسب يقرأها المستثمر',r1lead:'أدخل أرقام آخر سنة مالية كاملة، بأي عملة لكن بوحدة واحدة. هذه النسب التي سيحسبها المصرفي أو المستثمر في أول اجتماع. الأرقام الحالية مثال، استبدلها بأرقامك.',
+g:['قائمة الدخل','الميزانية','النقد والدين'],
+f:{rev:'الإيرادات هذا العام',revp:'الإيرادات العام الماضي',cogs:'تكلفة المبيعات',opex:'المصروفات التشغيلية (دون الفوائد والضريبة)',int:'مصروف الفوائد',tax:'الضريبة',ca:'الأصول المتداولة',cl:'الالتزامات المتداولة',ar:'الذمم المدينة',inv:'المخزون',ap:'الذمم الدائنة',debt:'إجمالي الديون التي عليها فوائد',eq:'إجمالي حقوق الملكية',assets:'إجمالي الأصول',cash:'الرصيد النقدي',burn:'صافي الحرق النقدي الشهري (صفر إذا كان مشروعك يولّد نقدًا)',pay:'أقساط القروض السنوية (أصل وفائدة)',intinc:'إيرادات الفوائد المحصّلة'},
+rows:{gm:['هامش الربح الإجمالي','هل المنتج نفسه مربح؟ قارن بقطاعك.'],nm:['هامش صافي الربح','ما يتبقى بعد كل التكاليف والفوائد والضريبة.'],gr:['نمو الإيرادات','على أساس سنوي. يقارنه المستثمر بمرحلتك.'],dscr:['تغطية خدمة الدين','الربح التشغيلي ÷ أقساط القروض السنوية. تطلب البنوك 1.25 مرة أو أكثر.'],ic:['تغطية الفوائد','الربح التشغيلي ÷ الفوائد. يبحث المقرضون عن 3 مرات أو أكثر.'],de:['الدين إلى حقوق الملكية','حجم الاقتراض في التمويل. أقل من مرتين مستوى مريح شائع.'],cr:['نسبة التداول','هل تغطي الأصول قصيرة الأجل الالتزامات القريبة؟ 1.5 مرة أو أكثر مريح.'],ccc:['دورة التحويل النقدي','الأيام بين سداد الموردين وتحصيل العملاء. الأقصر أفضل.'],run:['مدة كفاية النقد','عدد الأشهر التي يكفيها النقد بمعدل الحرق الحالي. اجمع التمويل وفي يدك 12 شهرًا أو أكثر.'],sh1:['فحص شرعي: الدين ÷ الأصول','فحص شائع: أقل من 33%. وهيئتك الشرعية هي التي تحدد القاعدة.'],sh2:['فحص شرعي: إيرادات الفوائد ÷ الإيرادات','فحص شائع: أقل من 5%.']},
+v:{good:'✓ مريح',watch:'! يحتاج متابعة',weak:'✕ ضعيف',pass:'✓ مجتاز',fail:'✕ غير مجتاز',na:'غير متاح',info:'قارن بنظرائك',cashgen:'✓ يولّد نقدًا'},
+days:'يوم',months:'شهر',flags:'ابدأ بمراجعة',none:'لا علامات تحذير وفق هذه القواعد الإرشادية.',
+note:'قواعد إرشادية فقط. تختلف شروط المقرضين حسب الدولة والقطاع والمرحلة، وتختلف الفحوص الشرعية حسب الهيئة. الربح التشغيلي = الإيرادات − تكلفة المبيعات − المصروفات التشغيلية. ليست نصيحة مالية.'},
+title:'أدوات التمويل',sub:'خمس أدوات سريعة من ورشة «من الفكرة إلى الأثر». الأرقام التي تدخلها تبقى على هاتفك.',
+tabs:{score:'بطاقة الجاهزية',match:'اختيار التمويل',cost:'الملكية أم الدين',ratio:'نسب المستثمرين',data:'أرقام 2026'},
+lang:'English',
+crit:[['التدفق النقدي قبل الحكاية','سجل إيرادات وتدفق نقدي إيجابي يمكنك إثباته'],['الحوكمة والرقابة','قوائم مدققة ومجلس فعّال وضوابط موثقة'],['هيكل ملكية واضح','ملكية وهيكل قانوني واضحان'],['الجاهزية للاقتراض','سجل إيرادات ومستثمر ملكية وضوابط مالية أساسية'],['التراخيص والامتثال','تراخيص القطاع وإجراءات اعرف عميلك ومكافحة غسل الأموال'],['التوافق مع الشريعة','نشاط مباح وضوابط مالية وهيئة شرعية']],
+short:['التدفق النقدي','الحوكمة','الملكية','الاقتراض','التراخيص','الشريعة'],
+lv:['0','1','2'],lvHelp:'0 = لا شيء موثق · 1 = جزئيًا · 2 = جاهز للعرض على مستثمر',
+s1:'قيّم مشروعك',s1lead:'قيّم كل معيار بصدق، كما سيفعل مستثمر يراجع ملفاتك.',
+total:'درجتك',of:'من 12',
+band:['ابدأ بالأساسيات أولًا: الحوكمة والسجلات والتدفق النقدي، قبل مخاطبة الممولين.','جاهز لمحادثات انتقائية: مستثمرو الملائكة ومؤسسات التمويل التنموي وعلاقة مع بنك.','جاهز لدين مهيكل أو جولة ملكية مسعّرة.'],
+weak:'أضعف المجالات',
+m1:'اعثر على التمويل المناسب',m1lead:'أجب عن أربعة أسئلة لترى الأداة الأقرب، مع نظيرتها الإسلامية.',
+stage:'المرحلة',stages:{idea:'فكرة / تحقق',seed:'تأسيس',growth:'نمو',scale:'توسع'},
+rev:'الإيرادات',revs:{none:'لا إيرادات بعد',some:'بعض الإيرادات',profit:'رابحة'},
+assets:'أصول قابلة للتمويل (مركبات، معدات، مستحقات)',yn:{yes:'نعم',no:'لا'},
+shar:'أحتاج خيارًا متوافقًا مع الشريعة',
+conv:'تقليدي',isl:'إسلامي',
+c1:'الملكية مقابل الدين',c1lead:'قارن ما تكلفه جولة الملكية للملاك بما يكلفه القرض للشركة. الأرقام أمثلة، استبدلها بأرقامك.',
+raise:'المبلغ المطلوب (مليون دولار)',pre:'التقييم قبل الاستثمار (مليون دولار)',rate:'فائدة القرض (% سنويًا)',term:'مدة القرض (سنوات)',exit:'قيمة الشركة عند التخارج (مليون دولار)',cf:'التدفق النقدي السنوي لخدمة الدين (مليون دولار)',
+eq:'مسار الملكية',dt:'مسار الدين',
+dil:'نسبة الملكية المتنازل عنها',keep:'ما يحتفظ به الملاك الحاليون',cost_eq:'قيمة الحصة المتنازل عنها عند التخارج',
+pay:'القسط السنوي',int:'إجمالي الفوائد',dscr:'تغطية التدفق النقدي للأقساط',
+ok:'تغطية مريحة (1.25 مرة أو أكثر).',tight:'تغطية ضعيفة: الأقساط تستهلك معظم تدفقك النقدي.',bad:'التدفق النقدي لا يغطي الأقساط. لا تقترض هذا المبلغ.',
+cmpEq:'مسار الملكية أكثر تكلفة من الفوائد وفق هذه الأرقام.',cmpDt:'الفوائد أكثر تكلفة من الحصة المتنازل عنها وفق هذه الأرقام.',
+cnote:'للتوضيح فقط. لا يشمل الرسوم والضرائب والضمانات والجولات اللاحقة والهيكلة الشرعية. ليس نصيحة مالية.',
+d1:'تمويل أفريقيا في 2026',
+ch1:'تمويل الشركات الناشئة حسب النوع، الربع الأول (مليون دولار)',ch2:'تمويل الربع الأول 2026 حسب الدولة (مليون دولار)',eqL:'ملكية',dtL:'دين',
+d2:'أرقام أخرى تستحق المعرفة',
+st:[['2 تريليون$','معاملات المال عبر الهاتف عالميًا في 2025'],['6.5 تريليون$','أصول التمويل الإسلامي عالميًا في 2025'],['5.7 تريليون$','فجوة تمويل المشروعات عالميًا'],['73 ← 32','جولات 100 إلى 500 ألف دولار، الربع الأول 2025 مقابل 2026']],
+dnote:'لكل جهة رصد منهجية مختلفة: رسم الملكية والدين من «Africa: The Big Deal» (600 مليون دولار في الربع الأول 2026)، ورسم الدول من جهة رصد أخرى سجلت 705 ملايين دولار.',
+src:'المصادر',
+foot:'أداة تعليمية من ورشة ICTA. ليست نصيحة استثمارية أو قانونية أو شرعية. راجع الهياكل مع مستشاريك وهيئتك الشرعية.'
+}};
+
+var $=function(id){return document.getElementById(id)};
+function t(){return I[LANG]}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function fmt(n,d){return Number(n).toLocaleString('en',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})}
+
+/* ---------- Readiness score ---------- */
+function radar(vals){
+  var cx=180,cy=150,R=95,n=6,L=t().short,pts=[],rings='',axes='',labels='';
+  function pt(i,r){var a=(-90+i*60)*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)]}
+  [1,2].forEach(function(k){var p=[];for(var i=0;i<n;i++)p.push(pt(i,R*k/2).join(','));rings+='<polygon points="'+p.join(' ')+'" fill="none" stroke="var(--line)" stroke-width="1"/>'});
+  for(var i=0;i<n;i++){var e=pt(i,R);axes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+e[0]+'" y2="'+e[1]+'" stroke="var(--line)"/>';
+    var lp=pt(i,R+22),anchor=lp[0]<cx-5?'end':(lp[0]>cx+5?'start':'middle');
+    labels+='<text x="'+lp[0]+'" y="'+(lp[1]+4)+'" text-anchor="'+anchor+'" font-size="12">'+esc(L[i])+'</text>';
+    pts.push(pt(i,R*vals[i]/2).join(','))}
+  return '<svg viewBox="0 0 360 300" width="100%" role="img" aria-label="'+esc(t().s1)+'">'+rings+axes+'<polygon points="'+pts.join(' ')+'" fill="var(--accent)" fill-opacity=".28" stroke="var(--accent)" stroke-width="2"/>'+labels+'</svg>';
+}
+function renderScore(){
+  var T=t(),h='<div class="card"><h2>'+T.s1+'</h2><p class="lead">'+T.s1lead+'</p><p class="note">'+T.lvHelp+'</p><div>';
+  T.crit.forEach(function(c,i){
+    h+='<div class="crit"><h3>'+c[0]+'</h3><div class="seg" role="radiogroup" aria-label="'+esc(c[0])+'">';
+    for(var v=0;v<3;v++)h+='<label><input type="radio" name="c'+i+'" value="'+v+'"'+(state.score[i]===v?' checked':'')+'><span>'+T.lv[v]+'</span></label>';
+    h+='</div><span class="hint">'+c[1]+'</span></div>';
+  });
+  h+='</div></div><div class="card result"><div id="radar"></div><div><div class="note">'+T.total+'</div><div class="big"><span id="tot"></span> <span style="font-size:20px;color:var(--muted)">'+T.of+'</span></div><div class="band" id="bandmsg" style="margin-top:12px"></div><p class="note" id="weak" style="margin-top:12px"></p></div></div>';
+  $('p-score').innerHTML=h;updateScore();
+}
+function updateScore(){
+  var T=t(),s=state.score,tot=s.reduce(function(a,b){return a+b},0);
+  $('radar').innerHTML=radar(s);$('tot').textContent=tot;
+  $('bandmsg').textContent=T.band[tot<=4?0:(tot<=8?1:2)];
+  var w=s.map(function(v,i){return [v,i]}).filter(function(x){return x[0]<2}).sort(function(a,b){return a[0]-b[0]}).slice(0,3).map(function(x){return T.crit[x[1]][0]});
+  $('weak').textContent=w.length?T.weak+': '+w.join(' · '):'';
+}
+
+/* ---------- Capital matcher ---------- */
+var PAIRS={
+ eq:{conv:[['Angel or seed equity, accelerator, grant','Early rounds rarely fit debt; small rounds are scarce, so build traction first.'],['استثمار ملائكي أو تأسيسي، مسرّعة، منحة','المراحل المبكرة لا تناسب الدين غالبًا، وجولات التمويل الصغيرة نادرة، فابنِ الإثبات أولًا.']],
+     isl:[['Equity partnership (mudarabah or musharaka)','Investor provides capital, you provide effort, profit is shared. Screen the activity for Shariah compliance.'],['شراكة ملكية (مضاربة أو مشاركة)','المستثمر يقدم المال وأنت الجهد، والربح مشترك. يُفحص النشاط شرعيًا.']]},
+ wc:{conv:[['Revolving credit line or invoice finance','Short-term cash for stock and receivables, repaid from sales.'],['خط ائتمان متجدد أو تمويل الفواتير','سيولة قصيرة الأجل للمخزون والمستحقات تُسدد من المبيعات.']],
+     isl:[['Murabaha working-capital facility','The financier buys the goods and resells to you at a disclosed profit, paid in instalments.'],['تمويل مرابحة لرأس المال العامل','الممول يشتري السلعة ويبيعها لك بربح معلوم يُسدد على أقساط.']]},
+ asset:{conv:[['Term loan or leasing','Fund equipment or a fleet over the life of the asset.'],['قرض لأجل أو تأجير تمويلي','تمويل المعدات أو الأسطول على مدى عمر الأصل.']],
+     isl:[['Ijara (lease), istisna’ for production','The financier owns the asset and leases it to you; istisna’ funds goods made to order.'],['إجارة، واستصناع للإنتاج','الممول يملك الأصل ويؤجره لك، والاستصناع يموّل تصنيع السلع حسب الطلب.']]},
+ growth:{conv:[['Venture debt, development-finance loan, or a hybrid equity-plus-debt round','Works for profitable, equity-backed firms. Example: Lucky’s $23m Series B.'],['دين مهيكل أو قرض تنموي أو جولة هجينة ملكية ودين','يناسب الشركات الرابحة المدعومة بملكية. مثال: جولة لاكي بقيمة 23 مليون دولار.']],
+     isl:[['Bank murabaha facility; rated and listed sukuk','Sukuk need a rating and a listing. Example: Bokra’s seven-year sukuk in Egypt.'],['تسهيل مرابحة من بنك؛ صكوك مصنفة ومدرجة','الصكوك تحتاج تصنيفًا وإدراجًا. مثال: صكوك بكرة لسبع سنوات في مصر.']]},
+ scale:{conv:[['Growth equity, private equity, corporate bond','Large tickets for proven, governed companies.'],['ملكية نمو، ملكية خاصة، سندات شركات','تذاكر كبيرة لشركات مثبتة وجيدة الحوكمة.']],
+     isl:[['Sukuk and Shariah-screened growth equity','Capital-market funding backed by assets or screened business activity.'],['صكوك وملكية نمو بعد الفحص الشرعي','تمويل من أسواق المال مدعوم بأصول أو نشاط مفحوص شرعيًا.']]}
+};
+function matchKeys(m){
+  var k=[];
+  if(m.rev==='none'||m.stage==='idea'){k.push('eq')}
+  else{
+    if(m.stage==='seed'&&m.rev==='some')k.push('eq');
+    k.push('wc');
+    if(m.assets==='yes')k.push('asset');
+    if(m.stage==='growth'&&m.rev==='profit')k.push('growth');
+    if(m.stage==='scale'&&m.rev==='profit')k.push('scale');
+    if(m.stage==='scale'&&m.rev!=='profit')k.push('growth');
+  }
+  return k;
+}
+function sel(id,label,opts,val){
+  return '<div class="field"><label for="'+id+'">'+label+'</label><select id="'+id+'">'+Object.keys(opts).map(function(k){return '<option value="'+k+'"'+(k===val?' selected':'')+'>'+esc(opts[k])+'</option>'}).join('')+'</select></div>';
+}
+function renderMatch(){
+  var T=t(),m=state.match;
+  $('p-match').innerHTML='<div class="card"><h2>'+T.m1+'</h2><p class="lead">'+T.m1lead+'</p><div class="fields">'+sel('m-stage',T.stage,T.stages,m.stage)+sel('m-rev',T.rev,T.revs,m.rev)+sel('m-assets',T.assets,T.yn,m.assets)+sel('m-shariah',T.shar,T.yn,m.shariah)+'</div></div><div id="matchout" class="panel"></div>';
+  updateMatch();
+}
+function updateMatch(){
+  var T=t(),m=state.match,i=LANG==='ar'?1:0,h='';
+  matchKeys(m).forEach(function(k){
+    var p=PAIRS[k];
+    h+='<div class="pair"><div class="opt"><span class="tag">'+T.conv+'</span><h3>'+esc(p.conv[i][0])+'</h3><p>'+esc(p.conv[i][1])+'</p></div>'+
+       '<div class="opt isl"><span class="tag">'+T.isl+(m.shariah==='yes'?' ✓':'')+'</span><h3>'+esc(p.isl[i][0])+'</h3><p>'+esc(p.isl[i][1])+'</p></div></div>';
+  });
+  var cau=(m.rev==='none'||m.stage==='idea')
+    ? (LANG==='ar'?'تحذير: الدين غير مرجح في هذه المرحلة. جولات 100 إلى 500 ألف دولار انخفضت من 73 إلى 32 بين الربع الأول 2025 و2026.':'Caution: debt is unlikely at this stage. Rounds of $100k–$500k fell from 73 to 32 between Q1 2025 and Q1 2026.')
+    : (LANG==='ar'?'قاعدة ذهبية: اربط أجل الدين بعمر الأصل، وأثبت قدرتك على السداد قبل الاقتراض.':'Rule of thumb: match the debt term to the life of the asset, and prove you can service it before you borrow.');
+  $('matchout').innerHTML=h+'<p class="note warn">'+cau+'</p>';
+}
+
+/* ---------- Equity vs debt ---------- */
+function field(id,label,val,step){return '<div class="field"><label for="'+id+'">'+label+'</label><input type="number" id="'+id+'" inputmode="decimal" min="0" step="'+(step||'any')+'" value="'+val+'"></div>'}
+function renderCost(){
+  var T=t(),c=state.cost;
+  $('p-cost').innerHTML='<div class="card"><h2>'+T.c1+'</h2><p class="lead">'+T.c1lead+'</p><div class="fields">'+field('k-raise',T.raise,c.raise)+field('k-pre',T.pre,c.pre)+field('k-rate',T.rate,c.rate)+field('k-term',T.term,c.term,1)+field('k-exit',T.exit,c.exit)+field('k-cf',T.cf,c.cf)+'</div></div><div class="pair" id="costout"></div><p class="note" id="cmp"></p><p class="note">'+T.cnote+'</p>';
+  updateCost();
+}
+function updateCost(){
+  var T=t(),c=state.cost,P=c.raise,pre=c.pre,r=c.rate/100,n=Math.max(1,Math.round(c.term));
+  if(!(P>0)||!(pre>=0)){$('costout').innerHTML='';$('cmp').textContent='';return}
+  var dil=P/(pre+P),eqCost=dil*c.exit;
+  var pmt=r>0?P*r/(1-Math.pow(1+r,-n)):P/n,tot=pmt*n-P,cover=pmt>0?c.cf/pmt:0;
+  var cls=cover>=1.25?'good':(cover>=1?'warn':'warn'),msg=cover>=1.25?T.ok:(cover>=1?T.tight:T.bad);
+  $('costout').innerHTML='<div class="card"><h3>'+T.eq+'</h3><div><div class="note">'+T.dil+'</div><div class="big">'+fmt(dil*100,1)+'%</div></div><div><div class="note">'+T.keep+'</div><b>'+fmt((1-dil)*100,1)+'%</b></div><div><div class="note">'+T.cost_eq+'</div><b>$'+fmt(eqCost,1)+'m</b></div></div>'+
+    '<div class="card"><h3>'+T.dt+'</h3><div><div class="note">'+T.pay+'</div><div class="big">$'+fmt(pmt,2)+'m</div></div><div><div class="note">'+T.int+'</div><b>$'+fmt(tot,2)+'m</b></div><div><div class="note">'+T.dscr+'</div><b class="'+cls+'">'+fmt(cover,2)+'× · '+msg+'</b></div></div>';
+  $('cmp').textContent=eqCost>tot?T.cmpEq:T.cmpDt;
+}
+
+/* ---------- Investor ratios ---------- */
+function renderRatio(){
+  var T=t(),R=T.R,r=state.ratio;
+  var groups=[['rev','revp','cogs','opex','int','tax'],['ca','cl','ar','inv','ap','assets'],['cash','burn','debt','eq','pay','intinc']];
+  var h='<div class="card"><h2>'+R.r1+'</h2><p class="lead">'+R.r1lead+'</p></div>';
+  groups.forEach(function(g,gi){h+='<div class="card"><h3>'+R.g[gi]+'</h3><div class="fields">'+g.map(function(k){return field('r-'+k,R.f[k],r[k])}).join('')+'</div></div>'});
+  h+='<div class="card"><div id="rout"></div><p class="note" id="rflags"></p></div><p class="note">'+R.note+'</p>';
+  $('p-ratio').innerHTML=h;updateRatio();
+}
+function updateRatio(){
+  var T=t(),R=T.R,r=state.ratio,rows=[],bad=[];
+  var gp=r.rev-r.cogs,ebit=gp-r.opex,np=ebit-r.int-r.tax;
+  function pc(x){return fmt(x*100,1)+'%'}
+  function mx(x){return fmt(x,2)+'×'}
+  function add(k,val,cls,vk){rows.push({k:k,val:val,cls:cls,label:R.v[vk]});if(cls==='warn'||cls==='bad')bad.push(R.rows[k][0])}
+  function grade(k,x,fmtf,good,watch,higher){
+    if(x===null||!isFinite(x)){add(k,'—','','na');return}
+    var ok=higher?x>=good:x<=good,mid=higher?x>=watch:x<=watch;
+    add(k,fmtf(x),ok?'good':(mid?'warn':'bad'),ok?'good':(mid?'watch':'weak'));
+  }
+  add('gm',r.rev>0?pc(gp/r.rev):'—','','info');
+  if(r.rev>0&&np<0)add('nm',pc(np/r.rev),'warn','watch');else add('nm',r.rev>0?pc(np/r.rev):'—','','info');
+  add('gr',r.revp>0?pc(r.rev/r.revp-1):'—','','info');
+  grade('dscr',r.pay>0?ebit/r.pay:null,mx,1.25,1,true);
+  grade('ic',r.int>0?ebit/r.int:null,mx,3,1.5,true);
+  if(r.eq>0)grade('de',r.debt/r.eq,mx,2,3,false);else add('de','—','bad','weak');
+  grade('cr',r.cl>0?r.ca/r.cl:null,mx,1.5,1,true);
+  if(r.rev>0&&r.cogs>0){var ccc=r.ar/r.rev*365+r.inv/r.cogs*365-r.ap/r.cogs*365;add('ccc',fmt(ccc,0)+' '+R.days,'','info')}else add('ccc','—','','na');
+  if(r.burn>0)grade('run',r.cash/r.burn,function(x){return fmt(x,1)+' '+R.months},12,6,true);else add('run','∞','good','cashgen');
+  if(r.assets>0){var d=r.debt/r.assets;add('sh1',pc(d),d<0.33?'good':'bad',d<0.33?'pass':'fail')}else add('sh1','—','','na');
+  if(r.rev>0){var ii=r.intinc/r.rev;add('sh2',pc(ii),ii<0.05?'good':'bad',ii<0.05?'pass':'fail')}else add('sh2','—','','na');
+  $('rout').innerHTML=rows.map(function(x){return '<div class="rrow"><div><h3>'+R.rows[x.k][0]+'</h3><span class="hint">'+R.rows[x.k][1]+'</span></div><div class="rval"><b dir="ltr">'+x.val+'</b><span class="pill '+x.cls+'">'+esc(x.label)+'</span></div></div>'}).join('');
+  $('rflags').textContent=bad.length?R.flags+': '+bad.slice(0,4).join(' · '):R.none;
+}
+
+/* ---------- Data ---------- */
+function bars(items,max,w,rowH){
+  var h=items.length*rowH+8,out='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img">';
+  items.forEach(function(it,i){
+    var y=i*rowH+4,bw=Math.max(2,(w-290)*it.v/max);
+    out+='<text x="0" y="'+(y+rowH*0.55)+'" font-size="14">'+esc(it.l)+'</text><rect x="210" y="'+(y+4)+'" width="'+bw+'" height="'+(rowH-12)+'" rx="4" fill="'+(it.c||'var(--accent)')+'"/><text x="'+(218+bw)+'" y="'+(y+rowH*0.55)+'" font-size="14" font-weight="700">'+esc(it.v)+'</text>';
+  });
+  return out+'</svg>';
+}
+function renderData(){
+  var T=t();
+  var c1=bars([{l:'Q1 2025 · '+T.eqL,v:400,c:'var(--head)'},{l:'Q1 2026 · '+T.eqL,v:290,c:'var(--head)'},{l:'Q1 2025 · '+T.dtL,v:50},{l:'Q1 2026 · '+T.dtL,v:305}],400,540,38);
+  var c2=bars([{l:'Egypt · مصر',v:190},{l:'South Africa · جنوب أفريقيا',v:157},{l:'Kenya · كينيا',v:94}],200,540,38);
+  $('p-data').innerHTML='<div class="card"><h2>'+T.d1+'</h2><h3>'+T.ch1+'</h3><div class="scroll">'+c1+'</div><h3>'+T.ch2+'</h3><div class="scroll">'+c2+'</div><p class="note">'+T.dnote+'</p></div>'+
+    '<div class="card"><h2>'+T.d2+'</h2><div class="stats">'+T.st.map(function(s){return '<div class="stat"><b>'+s[0]+'</b><span>'+s[1]+'</span></div>'}).join('')+'</div></div>'+
+    '<div class="card"><h3>'+T.src+'</h3><p class="note"><a href="https://www.wearetech.africa/en/fils-uk/news/tech/debt-financing-overtakes-equity-for-african-startups-for-first-time">Africa: The Big Deal, Q1 2026</a> · <a href="https://nextbillion.net/news/africas-startup-surge-hits-705-million-as-investment-momentum-builds/">Q1 2026 tracker ($705m)</a> · <a href="https://www.semafor.com/article/04/13/2026/african-startup-funding-surges-to-705m-in-first-quarter">Semafor (country split)</a> · <a href="https://www.itweb.co.za/article/mobile-money-industry-surpasses-2tn-threshold/Kjlyr7wBwy5vk6am">GSMA 2026</a> · <a href="https://www.lseg.com/en/data-analytics/islamic-finance/islamic-market-intelligence/islamic-finance-development-report-2026">LSEG–ICD 2026</a> · <a href="https://ifc.org/content/dam/ifc/doc/2024/msme-s-factsheet-ifc-financial-institutions-group.pdf">IFC MSME factsheet</a></p></div>';
+}
+
+/* ---------- Shell ---------- */
+var RENDER={score:renderScore,match:renderMatch,cost:renderCost,ratio:renderRatio,data:renderData};
+function shell(){
+  var T=t();
+  document.documentElement.lang=LANG;document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+  $('title').textContent=T.title;$('sub').textContent=T.sub;$('lang').textContent=T.lang;$('foot').textContent=T.foot;
+  document.title=T.title;
+  $('tabs').innerHTML=Object.keys(T.tabs).map(function(k){return '<button type="button" class="tab" role="tab" data-tab="'+k+'" aria-selected="'+(k===TAB)+'">'+esc(T.tabs[k])+'</button>'}).join('');
+  Object.keys(RENDER).forEach(function(k){RENDER[k]();$('p-'+k).hidden=(k!==TAB)});
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-tab]');
+  if(b){TAB=b.getAttribute('data-tab');Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(x){x.setAttribute('aria-selected',x===b)});Object.keys(RENDER).forEach(function(k){$('p-'+k).hidden=(k!==TAB)})}
+  if(e.target.id==='lang'){LANG=LANG==='en'?'ar':'en';try{localStorage.setItem('ft-lang',LANG)}catch(x){}shell()}
+});
+document.addEventListener('change',function(e){
+  var el=e.target;
+  if(el.name&&/^c\d$/.test(el.name)){state.score[+el.name.slice(1)]=+el.value;updateScore()}
+  if(el.id==='m-stage'||el.id==='m-rev'||el.id==='m-assets'||el.id==='m-shariah'){state.match[el.id.slice(2)]=el.value;updateMatch()}
+});
+document.addEventListener('input',function(e){
+  var el=e.target;
+  if(el.id&&el.id.indexOf('k-')===0){state.cost[el.id.slice(2)]=parseFloat(el.value)||0;updateCost()}
+  if(el.id&&el.id.indexOf('r-')===0){state.ratio[el.id.slice(2)]=parseFloat(el.value)||0;updateRatio()}
+});
+shell();
+})();
+</script>
+
+</html>
